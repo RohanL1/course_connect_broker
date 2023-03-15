@@ -8,10 +8,11 @@ import httplib2
 class Server:
     def __init__(self):
         self.listening_port = 8000
-        self.forwarding_port = 8010
+        # self.forwarding_port = 8010
         self.listening_host = '0.0.0.0'
-        self.forwarding_host = 'http://127.0.0.1'
-        self.forwarding_api = 'node/broker/'
+        self.http_st = 'http://'
+        self.forwarding_host = '127.0.0.1:8010'
+        self.forwarding_api = '/node/broker/'
         self.pub_cols = ['first_name', 'last_name', 'email', 'startQuarter', 'term', 'planned']
         self.sub_cols = ['email', 'subscribe']
         self.rqst_key = 'requestID'
@@ -61,10 +62,10 @@ class Server:
                     self.buffer.remove_from_buffer(request_map[self.ack_key])
                 elif self.ldr_key in request_map.keys(): #LDR update from Computer Server
                     #update forwarding host
-                    print(f"\nHost IP updated:{request_map[self.ldr_key]} to forward the request to Computation Server's Port {self.forwarding_port}....")
+                    print(f"\nHost IP updated:{request_map[self.ldr_key]} to forward the request to Computation Server....")
                     await self.set_forwarding_host(request_map[self.ldr_key])
                 elif self.rqst_key in request_map.keys(): #msg forwarding from web Server to Compute Server
-                    print(f"\nExecuting Sender thread to forward the request to Computation Server's Port {self.forwarding_port}....")
+                    print(f"\nExecuting Sender thread to forward the request to Computation Server....")
                     send = asyncio.create_task(self.forwardData(request_map))
                     sending_tasks.append(send)
                     await send
@@ -161,7 +162,7 @@ class Server:
                             for item in items_to_send:
                                 #sending data from the queue to the computation server
                                 # await websocket.send(item)
-                                url=f"{self.forwarding_host}:{self.forwarding_port}/{self.forwarding_api}"
+                                url=f"{self.http_st}{self.forwarding_host}{self.forwarding_api}"
                                 self.http.request(url,method="POST",body=json.dumps(item))
                                 await self.buffer.add_to_buffer(id=(json.loads(item))[self.rqst_key],json_obj=item)
                             continue  # go back to the beginning of the loop to check pub_Queue again
@@ -173,7 +174,7 @@ class Server:
                                 #sending data from the queue to the computation server 
                                 # only if corresponding pub Id not in buffer
                                 #await websocket.send(item)
-                                url=f"{self.forwarding_host}:{self.forwarding_port}/{self.forwarding_api}"
+                                url=f"{self.http_st}{self.forwarding_host}{self.forwarding_api}"
                                 self.http.request(url,method="POST",body=json.dumps(item))
                             await self.buffer.add_to_buffer(id=id,json_obj=item)
                             continue  # go back to the beginning of the loop to check pub_Queue again
