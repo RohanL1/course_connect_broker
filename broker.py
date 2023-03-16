@@ -163,7 +163,7 @@ class Server:
                                 #sending data from the queue to the computation server
                                 # await websocket.send(item)
                                 url=f"{self.http_st}{self.forwarding_host}{self.forwarding_api}"
-                                self.http.request(url,method="POST",body=json.dumps(item))
+                                self.http.request(url,method="POST",body=item)
                                 await self.buffer.add_to_buffer(id=(json.loads(item))[self.rqst_key],json_obj=item)
                             continue  # go back to the beginning of the loop to check pub_Queue again
                         elif not self.sub_queue.empty():
@@ -175,7 +175,7 @@ class Server:
                                 # only if corresponding pub Id not in buffer
                                 #await websocket.send(item)
                                 url=f"{self.http_st}{self.forwarding_host}{self.forwarding_api}"
-                                self.http.request(url,method="POST",body=json.dumps(item))
+                                self.http.request(url,method="POST",body=item)
                             await self.buffer.add_to_buffer(id=id,json_obj=item)
                             continue  # go back to the beginning of the loop to check pub_Queue again
                 await asyncio.sleep(0.1)  # sleep briefly to avoid spinning too much
