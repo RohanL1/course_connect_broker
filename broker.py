@@ -59,7 +59,7 @@ class Server:
 
                 if self.ack_key in request_map.keys(): #ACK from Compute server
                     #delete from buffer
-                    self.buffer.remove_from_buffer(request_map[self.ack_key])
+                    await self.buffer.remove_from_buffer(request_map[self.ack_key])
                 elif self.ldr_key in request_map.keys(): #LDR update from Computer Server
                     #update forwarding host
                     print(f"\nHost IP updated:{request_map[self.ldr_key]} to forward the request to Computation Server....")
